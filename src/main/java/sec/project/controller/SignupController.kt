@@ -21,7 +21,7 @@ class SignupController(@Autowired val signupRepository: SignupRepository) {
     }
 
     @RequestMapping(value = ["/form"], method = [RequestMethod.POST])
-    fun submitForm(@RequestParam name: String?, @RequestParam address: String?): String {
+    fun submitForm(@RequestParam name: String, @RequestParam address: String): String {
         signupRepository.save(Signup(name, address))
         return "done"
     }
