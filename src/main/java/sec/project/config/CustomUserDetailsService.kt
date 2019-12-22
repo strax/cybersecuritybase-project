@@ -14,7 +14,8 @@ class CustomUserDetailsService : UserDetailsService {
     private val accountDetails: MutableMap<String, String> = TreeMap()
 
     @PostConstruct
-    fun init() { // this data would typically be retrieved from a database
+    fun init() {
+        // ted:ted
         accountDetails["ted"] = "$2a$06\$rtacOjuBuSlhnqMO2GKxW.Bs8J6KI0kYjw/gtF0bfErYgFyNTZRDm"
     }
 

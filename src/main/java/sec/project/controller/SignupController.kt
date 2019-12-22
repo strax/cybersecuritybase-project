@@ -9,19 +9,15 @@ import sec.project.domain.Signup
 import sec.project.repository.SignupRepository
 
 @Controller
+@RequestMapping("/signups")
 class SignupController(@Autowired val signupRepository: SignupRepository) {
-    @RequestMapping("*")
-    fun defaultMapping(): String {
-        return "redirect:/form"
-    }
-
-    @RequestMapping(value = ["/form"], method = [RequestMethod.GET])
-    fun loadForm(): String {
+    @RequestMapping(method = [RequestMethod.GET])
+    fun get(): String {
         return "form"
     }
 
-    @RequestMapping(value = ["/form"], method = [RequestMethod.POST])
-    fun submitForm(@RequestParam name: String, @RequestParam address: String): String {
+    @RequestMapping(method = [RequestMethod.POST])
+    fun post(@RequestParam name: String, @RequestParam address: String): String {
         signupRepository.save(Signup(name, address))
         return "done"
     }

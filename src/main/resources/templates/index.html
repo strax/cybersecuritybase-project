@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <nav th:unless="${#authorization.expr('isAuthenticated()')}">
+        <a th:href="@{/login}">Sign in</a>
+    </nav>
+    <nav th:if="${#authorization.expr('isAuthenticated()')}">
+        <span>Signed in as <th:block th:utext="${#authentication.getName()}" /></span>
+        <a th:href="@{/logout}">Sign out</a>
+    </nav>
+    <h1>Events</h1>
+
+    <section th:each="event : ${events}">
+        <h2 th:utext="${event.name}">Event name</h2>
+    </section>
+
+    <hr />
+    <section th:if="${#authorization.expr('isAuthenticated()')}">
+        <a th:href="@{/events/new}">New event</a>
+    </section>
+    <section th:unless="${#authorization.expr('isAuthenticated()')}">
+        <p>Sign in to create events and sign up for them!</p>
+    </section>
+</body>
+</html>
