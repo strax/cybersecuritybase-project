@@ -22,4 +22,11 @@ class EventsController (@Autowired val eventsRepository: EventsRepository) : Has
         logger().info("created event ${event.id}")
         return "redirect:/"
     }
+
+    @GetMapping("/delete")
+    fun delete(@RequestParam id: Long): String {
+        val event = eventsRepository.findById(id).get()
+        eventsRepository.delete(event)
+        return "redirect:/"
+    }
 }

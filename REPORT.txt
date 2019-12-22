@@ -1,0 +1,90 @@
+LINK: https://github.com/strax/cybersecuritybase-project
+
+FLAW 1:
+A7 – Cross-Site Scripting (XSS)
+https://www.owasp.org/index.php/Top_10-2017_A7-Cross-Site_Scripting_(XSS)
+
+Description:
+The application allows registered users to create events.
+Its index route (GET /) then shows all the persisted events even if the
+user is not authenticated. The index route does not perform HTML tag sanitization on
+the event name, which allows an attacker to inject arbitrary HTML markup to the visitor's page.
+This can be used to, for instance, run third-party JavaScript on the victim's browsing context, leading to other
+attacks such as session hijacking. This vulnerability can also be combined with FLAW 3 as the attacker can use XSS to trigger
+a CSRF attack.
+
+How to fix:
+The vulnerable page uses Thymeleaf templates to render markup. There is an
+attribute called "th:utext" which does not perform sanitization; changing this to "th:text" will
+subsequently sanitize the name before rendering it.
+
+FLAW 2:
+A5 – Broken Access Control
+https://www.owasp.org/index.php/Top_10-2017_A5-Broken_Access_Control
+
+Description:
+A signed-in user can delete events they have created. However, due to missing access control
+enforcement an attacker can delete any events even without signing in or having created the event themselves.
+The vulnerability can be reproduced by making a GET request to /events/delete?id=<id> where <id> is the ID of the event.
+
+In addition, the application allows a non-signed-in user to navigate to /events/new and create a new event, even though
+the link to create new events is shown only to users who are signed in.
+
+How to fix:
+The vulnerability can be patched by checking for proper authorization in routes where
+access control is needed. For example, the /events/delete route should first check whether the currently signed-in
+user is the creator of the event, or otherwise has permission to destroy the entity.
+In addition, the application should enable Cross-Site Request Forgery (CSRF) prevention mechanisms in the Spring security configuration
+to ensure that CSRF attacks cannot be used to perform unauthorized actions on the victim's behalf.
+In the case of the /events/delete route it is also apparent that a proper HTTP method should be used as a GET request
+makes it easier to bypass any additional browser-based security features; the route should use the DELETE method instead.
+
+FLAW 3:
+A3 – Sensitive Data Exposure
+https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure
+
+Description:
+The application does not use an encrypted connection to transmit sensitive information,
+for instance user credentials during authentication. This makes it possible for an attacker
+to perform a man-in-the-middle (MITM) attack by intercepting raw HTTP traffic to obtain the victim's credentials.
+
+How to fix:
+Serve site traffic over the HTTPS protocol, which uses Transport Layer Security (TLS) to
+securely encrypt traffic with perfect forward secrecy. In addition, unsecured HTTP traffic should be blocked by
+implementing proper headers in HTTP responses, including the Strict-Transport-Security / HSTS header.
+
+FLAW 4:
+A6 – Security Misconfiguration
+https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration
+
+Description:
+The application exposes a database console to the Internet with default credentials.
+By navigating to https://<host>:<port>/h2-console the attacker can gain access to a database console
+with full credentials; in addition, the Spring defaults have not been changed so it is trivial for the attacker to determine
+the correct database name, username and password. This exploit can be combined with FLAW 3 to intercept the correct parameters
+with a MITM attack.
+
+How to fix:
+The database console feature should be disabled, protected by authentication or at the minimum restricted to the IP address
+127.0.0.1 (localhost) so that connections from other hosts in the Internet cannot access the endpoint. This can be achieved
+by changing the configuration property "spring.h2.console.settings.web-allow-others" to false, as it is insecurely set to true.
+If the feature is left enabled at all, additional care should be used to ensure that it is limited to development environments only and
+disabled in production, as it lead to full exposure of the database when combined with other attacks to bypass any authentication
+or restriction mechanisms.
+
+FLAW 5:
+A2 – Broken Authentication
+https://www.owasp.org/index.php/Top_10-2017_A2-Broken_Authentication
+
+Description:
+The application contains an authentication/authorization feature which lets users to sign in with an username and a password.
+However, the application does not set any requirements on the password such as length or special characters and thus lets the user
+use an easily guessable or brute-forced password. In addition, protections against brute-forcing attacks are not implemented in that
+an attacker can repeatedly try different username/password combinations with an automated tool without any rate limiting or threat detection system
+blocking access. The application can then be used as a "password oracle" which the attacker can use to repeatedly query whether a given password is valid or not.
+
+How to fix:
+Instead of implementing stricter password requirements or rate limitations to the sign in form, OWASP recommends implementors
+to require the use of two-factor authentication. In this case knowing the user's password would not be sufficient but obtaining
+access would require compromising an additional credential source, for example a mobile phone. In practice, however, two-factor authentication
+is complex to implement and the application would benefit from stricter password requirements and rate limitation against brute-force attacks.

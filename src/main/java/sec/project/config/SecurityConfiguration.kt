@@ -19,6 +19,11 @@ open class SecurityConfiguration(@Autowired val userDetailsService: CustomUserDe
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) { // no real security at the moment
         with(http) {
+            with(headers()) {
+                with(frameOptions()) {
+                    disable()
+                }
+            }
             with(csrf()) {
                 disable()
             }

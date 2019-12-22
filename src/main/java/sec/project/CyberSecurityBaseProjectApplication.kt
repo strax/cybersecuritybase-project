@@ -15,8 +15,8 @@ open class CyberSecurityBaseProjectApplication : HasLogger {
     @Bean
     open fun init(@Autowired eventsRepository: EventsRepository) = ApplicationRunner {
         logger().warn("Seeding sample data")
-        eventsRepository.save(Event(name = "Event 1"))
-        eventsRepository.save(Event(name = "Event 2"))
+        eventsRepository.save(Event(name = "Event 1", username = "ted"))
+        eventsRepository.save(Event(name = "Event 2", username = "ted"))
     }
 }
 

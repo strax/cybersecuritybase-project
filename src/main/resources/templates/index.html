@@ -16,6 +16,7 @@
 
     <section th:each="event : ${events}">
         <h2 th:utext="${event.name}">Event name</h2>
+        <a th:if="${event.username.equals(#authentication.getName())}" th:href="@{/events/delete(id = ${event.id})}">Delete event</a>
     </section>
 
     <hr />
